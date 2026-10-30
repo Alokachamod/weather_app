@@ -1,0 +1,11 @@
+.background-img{
+    background-image: url(../imgs/backgrounds/morning10am.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+}
+
+
+    
