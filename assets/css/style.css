@@ -4,6 +4,29 @@
     box-sizing: border-box;
 }
 
+:root {
+/* Time of day */
+  --bg-6am:  url('/assets/imgs/backgrounds/morning6am.jpg');
+  --bg-8am:  url('/assets/imgs/backgrounds/morning8am.jpg');
+  --bg-10am: url('/assets/imgs/backgrounds/morning10am.jpg');
+  --bg-12pm: url('/assets/imgs/backgrounds/morning12pm.jpg');
+  --bg-2pm:  url('/assets/imgs/backgrounds/morning2pm.jpg');
+  --bg-4pm:  url('/assets/imgs/backgrounds/morning4pm.jpg');
+  --bg-6pm:  url('/assets/imgs/backgrounds/morning6pm.jpg');
+  --bg-8pm:  url('/assets/imgs/backgrounds/evening8pm.jpg');
+  --bg-10pm: url('/assets/imgs/backgrounds/evening10pm.jpg');
+
+  /* Weather */
+  --bg-cloudy:              url('/assets/imgs/backgrounds/cloudy.jpg');
+  --bg-rainy:               url('/assets/imgs/backgrounds/rainy.jpg');
+  --bg-thunderstorm:        url('/assets/imgs/backgrounds/thunderstorm.jpg');
+  --bg-rainy-thunderstorm:  url('/assets/imgs/backgrounds/rainy and thunderstorm.jpg');
+  --bg-snow:                url('/assets/imgs/backgrounds/snow.jpg');
+  --bg-windy:               url('/assets/imgs/backgrounds/windy.jpg');
+}
+
+
+
 body {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: #fff;
@@ -11,7 +34,7 @@ body {
 }
 
 .background-img {
-    background-image: url(../imgs/backgrounds/morning10am.jpg);
+    background-image: var(--bg-8pm);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
