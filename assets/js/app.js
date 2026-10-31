@@ -59,3 +59,44 @@ weekdayPills.forEach(pill => {
     });
 });
 
+const currentDateEl = document.querySelector("#current-date");
+const currentTimeEl = document.querySelector("#current-time");
+
+function updateLiveDateTime() {
+    const now = new Date();
+
+    if (currentDateEl) {
+        const weekday = now.toLocaleDateString("en-US", { weekday: "long" });
+        const day = now.getDate();
+        const month = now.toLocaleDateString("en-US", { month: "long" });
+        const year = now.getFullYear();
+
+        currentDateEl.textContent = `${weekday}, ${day} ${month} ${year}`;
+    }
+
+    if (currentTimeEl) {
+        const timeParts = now.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        }).split(" ");
+        const timeValue = timeParts[0];
+        const period = timeParts[1] || "AM";
+
+        currentTimeEl.innerHTML = `${timeValue} <span class="time-meridiem">${period}</span>`;
+    }
+}
+
+function changeBackground() {
+    let bg_image = get
+    
+}
+
+updateLiveDateTime();
+setInterval(updateLiveDateTime, 1000);
+
+
+function setCurrentLocationWeather(){
+
+}
+
