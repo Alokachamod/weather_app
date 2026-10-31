@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Application</title>
+    <link rel="icon" type="image/png" href="assets/imgs/weather_type_icon/clear%20day.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
@@ -34,15 +35,14 @@
                                 <!-- Main Temp & Icon Display -->
                                 <div class="cardUpper d-flex justify-content-between align-items-center my-auto py-2">
                                     <div class="current-weather">
-                                        <h1 class="temp-display mb-0">14<span class="degree">°C</span></h1>
+                                        <h1 class="temp-display mb-0"><span id="current-temp">--</span><span class="degree">°C</span></h1>
                                         <div class="temp-range mt-1">
-                                            <span><i class="bi bi-arrow-up-short"></i> 18°</span>
-                                            <span class="ms-2"><i class="bi bi-arrow-down-short"></i> 11°</span>
+                                            <span id="feels-like">Feels like --°</span>
                                         </div>
                                     </div>
                                     <div class="weather-condition d-flex flex-column align-items-center text-center">
-                                        <img class="weather-icon" src="assets/imgs/weather_type_icon/clear day.png" alt="Clear Day">
-                                        <p class="weather-type mb-0 mt-1">Clear Day</p>
+                                        <img id="weather-icon" class="weather-icon" src="assets/imgs/weather_type_icon/clear day.png" alt="Weather condition">
+                                        <p id="weather-condition" class="weather-type mb-0 mt-1">Loading...</p>
                                     </div>
                                 </div>
 
@@ -50,19 +50,19 @@
                                 <div class="card-mini-stats d-flex justify-content-around py-2 my-2">
                                     <div class="mini-stat-item text-center">
                                         <i class="bi bi-droplet"></i>
-                                        <span class="stat-val">65%</span>
+                                        <span id="humidity-value" class="stat-val">--%</span>
                                         <span class="stat-lbl">Humidity</span>
                                     </div>
                                     <div class="stat-divider"></div>
                                     <div class="mini-stat-item text-center">
                                         <i class="bi bi-wind"></i>
-                                        <span class="stat-val">12 km/h</span>
+                                        <span id="wind-value" class="stat-val">-- km/h</span>
                                         <span class="stat-lbl">Wind</span>
                                     </div>
                                     <div class="stat-divider"></div>
                                     <div class="mini-stat-item text-center">
                                         <i class="bi bi-eye"></i>
-                                        <span class="stat-val">10 km</span>
+                                        <span id="visibility-value" class="stat-val">-- km</span>
                                         <span class="stat-lbl">Visibility</span>
                                     </div>
                                 </div>
@@ -70,9 +70,9 @@
                                 <!-- Card 01 Bottom Location -->
                                 <div class="cardbottom text-center pt-2">
                                     <h4 class="location-name mb-0">
-                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> Bentota
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i><span id="location-city">Loading...</span>
                                     </h4>
-                                    <p class="location-sub mb-0">Sri Lanka</p>
+                                    <p id="location-country" class="location-sub mb-0"></p>
                                 </div>
                             </div>
                         </div>
