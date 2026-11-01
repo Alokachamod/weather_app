@@ -123,6 +123,63 @@ function renderHourlyForecast(current, forecastDays) {
     });
 }
 
+function renderWeeklyForecast(forecastDays) {
+    const weekdayForecast = document.querySelector("#weekday-forecast");
+    const forecastDetail = document.querySelector("#weekly-forecast-detail");
+
+    if (!weekdayForecast || !forecastDetail) {
+        return;
+    }
+
+    weekdayForecast.replaceChildren();
+    const days = forecastDays.slice(0, 7);
+
+    if (days.length === 0) {
+        forecastDetail.textContent = "No daily forecast is available.";
+        return;
+    }
+
+    const dateFormatter = new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        day: "numeric",
+        timeZone: "UTC"
+    });
+
+    days.forEach((forecast, index) => {
+        const date = new Date(`${forecast.date}T00:00:00Z`);
+        const dayName = index === 0
+            ? "Today"
+            : new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" }).format(date);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `weekday-pill${index === 0 ? " active" : ""}`;
+        button.setAttribute("aria-pressed", String(index === 0));
+        button.title = dateFormatter.format(date);
+        const dayLabel = document.createElement("span");
+        dayLabel.className = "day-name";
+        dayLabel.textContent = dayName;
+        const temperature = document.createElement("span");
+        temperature.className = "day-temp";
+        temperature.textContent = `${Math.round(forecast.day.avgtemp_c)}°`;
+        button.append(dayLabel, temperature);
+        button.addEventListener("click", () => {
+            weekdayForecast.querySelectorAll(".weekday-pill").forEach(pill => {
+                const isSelected = pill === button;
+                pill.classList.toggle("active", isSelected);
+                pill.setAttribute("aria-pressed", String(isSelected));
+            });
+            renderWeeklyForecastDetails(forecast, dayName, dateFormatter.format(date), forecastDetail);
+        });
+        weekdayForecast.appendChild(button);
+    });
+
+    renderWeeklyForecastDetails(days[0], "Today", dateFormatter.format(new Date(`${days[0].date}T00:00:00Z`)), forecastDetail);
+}
+
+function renderWeeklyForecastDetails(forecast, dayName, date, detailElement) {
+    detailElement.textContent = `${dayName}, ${date}: ${forecast.day.condition.text} · High ${Math.round(forecast.day.maxtemp_c)}° / Low ${Math.round(forecast.day.mintemp_c)}°`;
+}
+
 function loadGoogleMaps() {
     window.initMap = initMap;
     window.gm_authFailure = () => {
@@ -143,6 +200,7 @@ loadGoogleMaps();
 const forecastTrack = document.querySelector("#forecast-track");
 const prevBtn = document.querySelector("#forecast-prev-btn");
 const nextBtn = document.querySelector("#forecast-next-btn");
+const weeklyForecastDetail = document.querySelector("#weekly-forecast-detail");
 const searchInput = document.querySelector("#map-search-input");
 const searchButton = document.querySelector("#map-search-button");
 
@@ -185,14 +243,6 @@ if (searchInput && searchButton) {
         }
     });
 }
-
-const weekdayPills = document.querySelectorAll(".weekday-pill");
-weekdayPills.forEach(pill => {
-    pill.addEventListener("click", () => {
-        weekdayPills.forEach(p => p.classList.remove("active"));
-        pill.classList.add("active");
-    });
-});
 
 const currentDateEl = document.querySelector("#current-date");
 const currentTimeEl = document.querySelector("#current-time");
@@ -298,7 +348,7 @@ const weatherApiKey = "d9cd4ed3ab814b87b7b105728261210";
 
 async function getWeatherData(location) {
   const res = await fetch(
-    `https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${encodeURIComponent(location)}&days=2`
+    `https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${encodeURIComponent(location)}&days=7`
   );
   const data = await res.json();
 
@@ -331,6 +381,7 @@ function showWeather(data) {
   document.querySelector("#location-city").textContent = data.location.name;
   document.querySelector("#location-country").textContent = data.location.country;
   renderHourlyForecast(current, data.forecast.forecastday);
+  renderWeeklyForecast(data.forecast.forecastday);
 }
 
 async function loadWeather() {
@@ -356,6 +407,9 @@ async function loadWeather() {
 
 loadWeather().catch(error => {
   console.error("Could not load weather data:", error);
+  if (weeklyForecastDetail) {
+    weeklyForecastDetail.textContent = `Forecast unavailable: ${error.message}`;
+  }
 });
 updateLiveDateTime();
 setInterval(updateLiveDateTime, 1000);

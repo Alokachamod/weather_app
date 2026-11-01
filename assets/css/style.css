@@ -238,6 +238,12 @@ body {
     max-width: 100%;
 }
 
+.weekly-forecast-detail {
+    min-height: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.78rem;
+}
+
 .weekday-pill {
     display: flex;
     flex-direction: column;

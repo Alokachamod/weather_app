@@ -75,36 +75,8 @@
 
                                 <div class="weekdays-container mt-2 w-100">
                                     <p class="weekdays-title mb-2"><i class="bi bi-calendar3 me-1"></i> Weekly Forecast</p>
-                                    <div class="weekdays-nav d-flex justify-content-center flex-wrap gap-2" role="tablist">
-                                        <button type="button" class="weekday-pill active" title="Monday">
-                                            <span class="day-name">Mon</span>
-                                            <span class="day-temp">15°</span>
-                                        </button>
-                                        <button type="button" class="weekday-pill" title="Tuesday">
-                                            <span class="day-name">Tue</span>
-                                            <span class="day-temp">17°</span>
-                                        </button>
-                                        <button type="button" class="weekday-pill" title="Wednesday">
-                                            <span class="day-name">Wed</span>
-                                            <span class="day-temp">14°</span>
-                                        </button>
-                                        <button type="button" class="weekday-pill" title="Thursday">
-                                            <span class="day-name">Thu</span>
-                                            <span class="day-temp">16°</span>
-                                        </button>
-                                        <button type="button" class="weekday-pill" title="Friday">
-                                            <span class="day-name">Fri</span>
-                                            <span class="day-temp">18°</span>
-                                        </button>
-                                        <button type="button" class="weekday-pill" title="Saturday">
-                                            <span class="day-name">Sat</span>
-                                            <span class="day-temp">14°</span>
-                                        </button>
-                                        <button type="button" class="weekday-pill" title="Sunday">
-                                            <span class="day-name">Sun</span>
-                                            <span class="day-temp">13°</span>
-                                        </button>
-                                    </div>
+                                    <div class="weekdays-nav d-flex justify-content-center flex-wrap gap-2" id="weekday-forecast" aria-label="Daily forecast"></div>
+                                    <p class="weekly-forecast-detail mb-0 mt-2" id="weekly-forecast-detail" aria-live="polite">Loading forecast...</p>
                                 </div>
                             </div>
                         </div>
