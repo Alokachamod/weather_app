@@ -144,10 +144,11 @@ function loadGoogleMaps() {
 
 loadGoogleMaps();
 
-// --- UI Interaction Handlers ---
 const forecastTrack = document.querySelector("#forecast-track");
 const prevBtn = document.querySelector("#forecast-prev-btn");
 const nextBtn = document.querySelector("#forecast-next-btn");
+const searchInput = document.querySelector("#map-search-input");
+const searchButton = document.querySelector("#map-search-button");
 
 if (forecastTrack && prevBtn && nextBtn) {
     prevBtn.addEventListener("click", () => {
@@ -158,7 +159,37 @@ if (forecastTrack && prevBtn && nextBtn) {
     });
 }
 
-// Weekday pills interactive active state
+async function searchLocation() {
+    const location = searchInput.value.trim();
+
+    if (location === "") {
+        mapStatus.textContent = "Enter a city or location to search.";
+        return;
+    }
+
+    searchButton.disabled = true;
+    mapStatus.textContent = "Searching...";
+
+    try {
+        const data = await getWeatherData(location);
+        showWeather(data);
+        mapStatus.textContent = `Showing weather for ${data.location.name}.`;
+    } catch (error) {
+        mapStatus.textContent = error.message;
+    } finally {
+        searchButton.disabled = false;
+    }
+}
+
+if (searchInput && searchButton) {
+    searchButton.addEventListener("click", searchLocation);
+    searchInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            searchLocation();
+        }
+    });
+}
+
 const weekdayPills = document.querySelectorAll(".weekday-pill");
 weekdayPills.forEach(pill => {
     pill.addEventListener("click", () => {
@@ -169,6 +200,65 @@ weekdayPills.forEach(pill => {
 
 const currentDateEl = document.querySelector("#current-date");
 const currentTimeEl = document.querySelector("#current-time");
+const backgroundElement = document.querySelector("#bg-img");
+let backgroundCondition = "";
+let backgroundWindKph = 0;
+let backgroundTimeZone;
+
+function getTimeBackgroundVariable(hour) {
+    if (hour >= 6 && hour < 8) return "--bg-6am";
+    if (hour >= 8 && hour < 10) return "--bg-8am";
+    if (hour >= 10 && hour < 12) return "--bg-10am";
+    if (hour >= 12 && hour < 14) return "--bg-12pm";
+    if (hour >= 14 && hour < 16) return "--bg-2pm";
+    if (hour >= 16 && hour < 18) return "--bg-4pm";
+    if (hour >= 18 && hour < 20) return "--bg-6pm";
+    if (hour >= 20 && hour < 22) return "--bg-8pm";
+    return "--bg-10pm";
+}
+
+function getBackgroundVariable(condition, windKph, hour) {
+    const description = condition.toLowerCase();
+
+    if (description.includes("thunder") && /rain|shower/.test(description)) {
+      return "--bg-rainy-thunderstorm";
+    }
+    if (description.includes("thunder")) {
+      return "--bg-thunderstorm";
+    }
+    if (/snow|sleet|blizzard|ice pellets/.test(description)) {
+      return "--bg-snow";
+    }
+    if (/rain|drizzle|shower/.test(description)) {
+      return "--bg-rainy";
+    }
+    if (description.includes("wind") || windKph >= 30) {
+      return "--bg-windy";
+    }
+    if (/cloud|overcast|fog|mist|haze/.test(description)) {
+      return "--bg-cloudy";
+    }
+
+    return getTimeBackgroundVariable(hour);
+}
+
+function updateBackground() {
+    if (!backgroundElement) {
+      return;
+    }
+
+    const timeOptions = {
+      hour: "2-digit",
+      hourCycle: "h23",
+      ...(backgroundTimeZone ? { timeZone: backgroundTimeZone } : {})
+    };
+    const hour = Number(new Intl.DateTimeFormat("en-US", timeOptions)
+      .formatToParts(new Date())
+      .find(part => part.type === "hour").value);
+    const variable = getBackgroundVariable(backgroundCondition, backgroundWindKph, hour);
+
+    backgroundElement.style.backgroundImage = `var(${variable})`;
+}
 
 function updateLiveDateTime() {
     const now = new Date();
@@ -200,8 +290,7 @@ function getLocation() {
     navigator.geolocation.getCurrentPosition(
       pos => resolve({
         lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        accuracy: pos.coords.accuracy
+        lon: pos.coords.longitude
       }),
       reject,
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -211,26 +300,9 @@ function getLocation() {
 
 const weatherApiKey = "d9cd4ed3ab814b87b7b105728261210";
 
-async function loadWeather() {
-  let coords;
-
-  if ("geolocation" in navigator) {
-    try {
-      coords = await getLocation();
-      console.log("Browser location:", coords, `Accuracy: ${Math.round(coords.accuracy)} m`);
-    } catch (error) {
-      console.warn("Could not get your location; using the default location.", error);
-      coords = { lat: 6.9271, lon: 79.8612 };
-    }
-  } else {
-    console.warn("Geolocation is not supported; using the default location.");
-    coords = { lat: 6.9271, lon: 79.8612 }; // permission nathnam default (Colombo)
-  }
-
-  setMapLocation(coords);
-
+async function getWeatherData(location) {
   const res = await fetch(
-    `https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${coords.lat},${coords.lon}&days=2`
+    `https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${encodeURIComponent(location)}&days=2`
   );
   const data = await res.json();
 
@@ -238,7 +310,18 @@ async function loadWeather() {
     throw new Error(data.error?.message || `Weather request failed (${res.status})`);
   }
 
+  return data;
+}
+
+function showWeather(data) {
   const current = data.current;
+
+  backgroundCondition = current.condition.text;
+  backgroundWindKph = current.wind_kph;
+  backgroundTimeZone = data.location.tz_id;
+  updateBackground();
+
+  setMapLocation(data.location);
   document.querySelector("#current-temp").textContent = Math.round(current.temp_c);
   document.querySelector("#feels-like").textContent = `Feels like ${Math.round(current.feelslike_c)}°`;
   document.querySelector("#weather-condition").textContent = current.condition.text;
@@ -249,10 +332,28 @@ async function loadWeather() {
 
   document.querySelector("#humidity-value").textContent = `${current.humidity}%`;
   document.querySelector("#wind-value").textContent = `${Math.round(current.wind_kph)} km/h`;
-  document.querySelector("#visibility-value").textContent = `${current.vis_km} km`;
   document.querySelector("#location-city").textContent = data.location.name;
   document.querySelector("#location-country").textContent = data.location.country;
   renderHourlyForecast(current, data.forecast.forecastday);
+}
+
+async function loadWeather() {
+  let coords;
+
+  if ("geolocation" in navigator) {
+    try {
+      coords = await getLocation();
+    } catch (error) {
+      console.warn("Could not get your location; using the default location.", error);
+      coords = { lat: 6.9271, lon: 79.8612 };
+    }
+  } else {
+    console.warn("Geolocation is not supported; using the default location.");
+    coords = { lat: 6.9271, lon: 79.8612 };
+  }
+
+  const data = await getWeatherData(`${coords.lat},${coords.lon}`);
+  showWeather(data);
 }
 
 
@@ -262,8 +363,5 @@ loadWeather().catch(error => {
 });
 updateLiveDateTime();
 setInterval(updateLiveDateTime, 1000);
-
-
-function setCurrentLocationWeather(){
-
-}
+updateBackground();
+setInterval(updateBackground, 60 * 1000);
